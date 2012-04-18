@@ -5,15 +5,19 @@ module WashOut
     attr_accessor :type
     attr_accessor :multiplied
     attr_accessor :value
+    attr_accessor :min
+    attr_accessor :max
 
     # Defines a WSDL parameter with name +name+ and type specifier +type+.
     # The type specifier format is described in #parse_def.
-    def initialize(name, type, multiplied = false)
+    def initialize(name, type, multiplied = false, min = nil, max = nil)
       type ||= {}
 
       @name       = name.to_s
       @map        = {}
-      @multiplied = multiplied
+      @multiplied = multiplied || max && max > 1
+      @min        = min || (multiplied && 0)
+      @max        = max || (multiplied && 'unbounded')
 
       if type.is_a?(Symbol)
         @type = type.to_s
@@ -114,7 +118,7 @@ module WashOut
     end
 
     def flat_copy
-      copy = self.class.new(@name, @type.to_sym, @multiplied)
+      copy = self.class.new(@name, @type.to_sym, @multiplied, @min, @max)
     end
 
     private
